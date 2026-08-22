@@ -1,0 +1,12 @@
+{
+  "plan": "Plus",
+  "updated_at": "2026-08-22T10:00:00+07:00",
+  "windows": [
+    {
+      "label": "Weekly",
+      "used_percent": 41,
+      "reset_at": "2026-08-27T10:00:00+07:00",
+      "window_hours": 168
+    }
+  ]
+}
