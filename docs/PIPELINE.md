@@ -6,7 +6,7 @@ Claude has two modes. Baseline mode reads Claude Desktop's locally cached offici
 
 ChatGPT is always adapter-based. `CHATGPT_USAGE_COMMAND` runs only on the owner’s server and must output a JSON object with `plan`, `updated_at`, and `windows`. A window is valid for projection when it contains `label`, `used_percent` (0–100), `reset_at` (ISO-8601 with timezone), and `window_hours`.
 
-No collector output is sent to third parties by this project. The API persists only label, percentage, and reset timestamp for the ChatGPT projection history in ignored `data/`.
+The API itself sends no collector output to third parties. If the optional Telegram reporter is enabled, it sends only the formatted percentages, reset timestamps, and projections to the owner-configured chat. The API persists only label, percentage, and reset timestamp for the ChatGPT projection history in ignored `data/`.
 
 ## 2. API and projection
 
@@ -40,12 +40,17 @@ Do not publish raw port `8787` through router port-forwarding. The API key is a 
 
 ## 4. Widget behavior
 
-Scriptable requests both endpoints in parallel every 30 minutes. The combined widget treats them independently, so one section can still render if the other provider is unavailable. It displays Claude Pro and ChatGPT Plus with their brand-color dots, usage bars, pace, and projection. The last successful response is cached in Scriptable Documents for offline display.
+Scriptable requests both endpoints in parallel every 30 minutes. The combined widget treats them independently, so one section can still render if the other provider is unavailable. It displays Claude Pro and ChatGPT Plus with their brand-color dots, 5-hour usage/reset, weekly usage/reset/projection, and safe/unsafe status. The last successful response is cached in Scriptable Documents for offline display.
 
-## 5. Publishing checklist
+## 5. Optional Telegram delivery
+
+`src/telegram_report.py` requests the same two authenticated endpoints and formats one combined plain-text message. `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` must exist only in the ignored `.env` file or another private environment source. The tracked LaunchAgent template uses a fixed script and label; integrations should map `ai usage` to that fixed label instead of executing user-provided shell text.
+
+## 6. Publishing checklist
 
 - [ ] Run `git status --ignored`; `.env`, `data/`, `logs/`, and `.venv/` must not be staged.
 - [ ] Search staged files for `apiKey`, IPs, Telegram IDs, account IDs, tokens, and absolute home paths.
+- [ ] Confirm real `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` values exist only in ignored/private configuration.
 - [ ] Generate a new API key before the public release if an old key ever appeared in a commit or screenshot.
 - [ ] Verify `AI_USAGE_BIND_HOST=127.0.0.1` is the default in the tracked example.
 - [ ] Keep any ChatGPT OAuth/browser-session collector private; publish only the adapter contract unless it uses a documented, user-authorized integration.

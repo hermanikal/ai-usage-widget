@@ -35,6 +35,7 @@ Tolong lakukan langkah berikut:
 
 Batasan keamanan:
 - Jangan pernah hardcode atau menampilkan API key, OAuth token, cookie browser, Telegram token/chat ID, alamat IP privat, atau usage history.
+- Jika mengaktifkan laporan Telegram, simpan `TELEGRAM_BOT_TOKEN` dan `TELEGRAM_CHAT_ID` hanya di `.env`; uji dahulu dengan `./run-telegram-report.sh --preview`.
 - Jangan expose API ke internet publik. Jika iPhone membutuhkan akses, rekomendasikan Tailscale/private VPN atau reverse proxy HTTPS dengan access control.
 - Jangan menganggap projection sebagai quota resmi atau jaminan akses.
 

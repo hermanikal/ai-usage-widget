@@ -1,10 +1,25 @@
-// ChatGPT Plus-only Scriptable widget. Set these two values locally; do not commit them.
+// ChatGPT Plus-only Scriptable widget. Replace placeholders only in your private copy.
 const CONFIG = { baseUrl: "https://YOUR-PRIVATE-HOST", apiKey: "PASTE-YOUR-API-KEY", refreshMinutes: 30 };
-const fm=FileManager.local(), cache=fm.joinPath(fm.documentsDirectory(),"chatgpt_usage_widget_cache.json");
-const brand=new Color("#10A37F"), muted=new Color("#999999");
-function color(p){return new Color(p<50?"#34c759":p<75?"#ffcc00":p<90?"#ff9500":"#ff3b30");}
-function dot(){const c=new DrawContext();c.size=new Size(10,10);c.opaque=false;c.setFillColor(brand);const p=new Path();p.addEllipse(new Rect(0,0,10,10));c.addPath(p);c.fillPath();return c.getImage();}
-function bar(p,w){const c=new DrawContext();c.size=new Size(w,8);c.opaque=false;c.setFillColor(new Color("#353535"));c.fillRoundedRect(new Rect(0,0,w,8),4,4);c.setFillColor(color(p));c.fillRoundedRect(new Rect(0,0,Math.max(8,Math.min(w,w*p/100)),8),4,4);return c.getImage();}
-function row(w,label,pct,width){const s=w.addStack();s.layoutHorizontally();s.centerAlignContent();const l=s.addText(label);l.font=Font.systemFont(12);l.textColor=muted;s.addSpacer();if(typeof pct!=="number"){const n=s.addText("—");n.textColor=muted;return;}const i=s.addImage(bar(pct,width));i.imageSize=new Size(width,8);s.addSpacer(6);const t=s.addText(`${Math.round(pct)}%`);t.font=Font.boldSystemFont(12);t.textColor=color(pct);}
-async function load(){try{const r=new Request(CONFIG.baseUrl+"/api/chatgpt-usage");r.headers={"X-API-Key":CONFIG.apiKey};r.timeoutInterval=15;const d=await r.loadJSON();fm.writeString(cache,JSON.stringify(d));return d;}catch(e){if(fm.fileExists(cache))return JSON.parse(fm.readString(cache));throw e;}}
-const w=new ListWidget();w.backgroundColor=new Color("#1a1a1a");w.setPadding(12,14,12,14);try{const d=await load(),h=w.addStack();h.layoutHorizontally();const i=h.addImage(dot());i.imageSize=new Size(10,10);h.addSpacer(6);const t=h.addText("ChatGPT Plus");t.font=Font.boldSystemFont(15);t.textColor=Color.white();w.addSpacer(8);(d.windows||[]).slice(0,2).forEach(x=>{row(w,x.label,x.used_percent,160);w.addSpacer(5);});const p=(d.projections||[])[0];if(p){w.addSpacer(2);const pace=w.addText(`Pace +${p.pct_per_hour}%/jam`);pace.font=Font.systemFont(11);pace.textColor=muted;const status=w.addText(p.safe_until_reset?`✅ Aman (~${p.projected_pct_at_reset}% saat reset)`:`⚠️ Proyeksi ${p.projected_pct_at_reset}% saat reset`);status.font=Font.boldSystemFont(11);status.textColor=p.safe_until_reset?new Color("#34c759"):new Color("#ff9500");}}catch(e){const t=w.addText("ChatGPT Usage unavailable");t.textColor=Color.white();}w.refreshAfterDate=new Date(Date.now()+CONFIG.refreshMinutes*60000);Script.setWidget(w);Script.complete();
+const COLORS = { bg: new Color("#1a1a1a"), muted: new Color("#999999"), brand: new Color("#10A37F") };
+
+function color(p) { return new Color(p < 50 ? "#34c759" : p < 75 ? "#ffcc00" : p < 90 ? "#ff9500" : "#ff3b30"); }
+function formatTime(v) { if (!v) return "—"; const d=new Date(v); if(isNaN(d.getTime())) return "—"; return `${String(d.getDate()).padStart(2,"0")} ${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; }
+function sessionReset(v) { const d=v?new Date(v):null; return !d||isNaN(d.getTime())||d.getTime()<=Date.now()?"Not started yet":formatTime(v); }
+function duration(x) { return x.window_duration_minutes??(typeof x.window_hours==="number"?x.window_hours*60:String(x.label).toLowerCase().includes("week")?10080:300); }
+function findWindow(windows,minutes,keyword) { return windows.find(x=>duration(x)===minutes||String(x.label).toLowerCase().includes(keyword))||{}; }
+function dot() { const c=new DrawContext();c.size=new Size(12,12);c.opaque=false;c.setFillColor(COLORS.brand);const p=new Path();p.addEllipse(new Rect(0,0,12,12));c.addPath(p);c.fillPath();return c.getImage(); }
+function bar(p,w) { const value=Math.max(0,Math.min(100,p??0));const c=new DrawContext();c.size=new Size(w,8);c.opaque=false;c.setFillColor(new Color("#353535"));c.fillRoundedRect(new Rect(0,0,w,8),4,4);c.setFillColor(color(value));c.fillRoundedRect(new Rect(0,0,Math.max(8,w*value/100),8),4,4);return c.getImage(); }
+function row(parent,label,pct,width) { const s=parent.addStack();s.layoutHorizontally();s.centerAlignContent();const l=s.addText(label);l.font=Font.boldSystemFont(12);l.textColor=COLORS.muted;s.addSpacer(6);if(typeof pct!=="number"){const n=s.addText("—");n.textColor=COLORS.muted;return;}const i=s.addImage(bar(pct,width));i.imageSize=new Size(width,8);s.addSpacer(6);const t=s.addText(`${Math.round(pct)}%`);t.font=Font.boldSystemFont(12);t.textColor=color(pct); }
+function detail(parent,text) { const t=parent.addText(text);t.font=Font.systemFont(10);t.textColor=COLORS.muted;t.lineLimit=1; }
+async function load() { const fm=FileManager.local(),path=fm.joinPath(fm.documentsDirectory(),"chatgpt_usage_widget_cache.json");try{const r=new Request(CONFIG.baseUrl+"/api/chatgpt-usage");r.headers={"X-API-Key":CONFIG.apiKey};const d=await r.loadJSON();fm.writeString(path,JSON.stringify(d));return d;}catch(e){if(fm.fileExists(path))return JSON.parse(fm.readString(path));throw e;} }
+
+const widget=new ListWidget();widget.backgroundColor=COLORS.bg;widget.setPadding(12,14,12,14);
+try {
+  const data=await load(),windows=data.windows||[],session=findWindow(windows,300,"5 hour"),weekly=findWindow(windows,10080,"week"),projection=(data.projections||[]).find(x=>String(x.label).toLowerCase().includes("week"))||{};
+  const h=widget.addStack();h.layoutHorizontally();h.centerAlignContent();const i=h.addImage(dot());i.imageSize=new Size(12,12);h.addSpacer(6);const title=h.addText("ChatGPT Plus");title.font=Font.boldSystemFont(15);title.textColor=Color.white();
+  widget.addSpacer(8);row(widget,"5 hour",session.used_percent,150);widget.addSpacer(2);detail(widget,`5h reset: ${sessionReset(session.reset_at)}`);
+  widget.addSpacer(6);row(widget,"Weekly",weekly.used_percent,150);widget.addSpacer(6);
+  const projected=projection.projected_pct_at_reset;detail(widget,`Reset ${formatTime(weekly.reset_at||projection.reset_at)}${typeof projected==="number"?` · ~${projected}% weekly`:""}`);
+  if(typeof projection.safe_until_reset==="boolean"){widget.addSpacer(2);const s=widget.addText(projection.safe_until_reset?"✅ Aman sampai reset":"⚠️ Tidak aman sebelum reset");s.font=Font.boldSystemFont(11);s.textColor=projection.safe_until_reset?new Color("#34c759"):new Color("#ff9500");}
+} catch(e) { const t=widget.addText("ChatGPT Usage unavailable");t.textColor=Color.white(); }
+widget.refreshAfterDate=new Date(Date.now()+CONFIG.refreshMinutes*60000);Script.setWidget(widget);Script.complete();

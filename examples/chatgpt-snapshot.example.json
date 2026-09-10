@@ -3,6 +3,12 @@
   "updated_at": "2026-08-22T10:00:00+07:00",
   "windows": [
     {
+      "label": "5 hour",
+      "used_percent": 12,
+      "reset_at": "2026-08-22T14:00:00+07:00",
+      "window_hours": 5
+    },
+    {
       "label": "Weekly",
       "used_percent": 41,
       "reset_at": "2026-08-27T10:00:00+07:00",

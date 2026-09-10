@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.example.ai-usage-telegram</string>
+  <key>ProgramArguments</key><array>
+    <string>/bin/zsh</string><string>YOUR_REPOSITORY_PATH/run-telegram-report.sh</string>
+  </array>
+  <key>WorkingDirectory</key><string>YOUR_REPOSITORY_PATH</string>
+  <key>RunAtLoad</key><false/>
+  <key>StandardOutPath</key><string>YOUR_REPOSITORY_PATH/logs/telegram.log</string>
+  <key>StandardErrorPath</key><string>YOUR_REPOSITORY_PATH/logs/telegram.err</string>
+</dict></plist>

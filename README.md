@@ -9,9 +9,8 @@ It is designed to be published safely: no credentials, private IP addresses, use
 ```text
 Claude Desktop cache / Claude collector ─┐
                                          ├─ local FastAPI ── authenticated HTTPS/VPN ── Scriptable widget
-ChatGPT collector command (optional) ───┘
-                                               │
-                                               └─ minimal local quota history → projection
+ChatGPT collector command (optional) ───┘        │
+                                                  └─ optional Telegram reporter
 ```
 
 The server makes no outbound requests. A collector runs on the same machine and emits JSON to stdout. The ChatGPT collector is intentionally an owner-supplied adapter: this repository does not scrape a website, copy browser sessions, or contain OAuth credentials.
@@ -47,6 +46,33 @@ For the iPhone, use a private VPN such as Tailscale, or a TLS reverse proxy. Cha
 
 The widget caches its last successful response locally, so a temporary network failure does not blank the display.
 
+The Large layout displays each provider in this order: 5-hour usage, 5-hour reset (or `Not started yet`), weekly usage, weekly reset with projected percentage, and the safe/unsafe status.
+
+## Optional Telegram report
+
+The repository includes a generic Telegram Bot API reporter with the same information and ordering as the Large widget. Credentials are read only from the ignored `.env` file:
+
+```bash
+AI_USAGE_API_URL=http://127.0.0.1:8787
+TELEGRAM_BOT_TOKEN=your-private-bot-token
+TELEGRAM_CHAT_ID=your-private-chat-id
+```
+
+Preview without sending, then send a real report:
+
+```bash
+./run-telegram-report.sh --preview
+./run-telegram-report.sh
+```
+
+For macOS automation, copy [`examples/com.example.ai-usage-telegram.plist`](examples/com.example.ai-usage-telegram.plist), replace `YOUR_REPOSITORY_PATH`, and load it with `launchctl bootstrap`. Trigger an on-demand report with:
+
+```bash
+launchctl kickstart -k gui/$(id -u)/com.example.ai-usage-telegram
+```
+
+An agent or Telegram gateway can map the phrase `ai usage` to that fixed LaunchAgent label. Do not let chat input select arbitrary commands or LaunchAgent labels.
+
 ## Collectors
 
 ### Claude baseline
@@ -81,6 +107,7 @@ Using an AI coding agent for local setup? A ready-to-paste, security-scoped prom
 - Usage sources and local cache formats can change without notice.
 - Projection is a linear estimate, not a quota guarantee.
 - Do not use this as billing, access-control, or security data.
+- Telegram delivery requires a bot created and controlled by the repository owner; no bot credentials are included here.
 
 ## License
 
