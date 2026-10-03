@@ -48,6 +48,10 @@ The widget caches its last successful response locally, so a temporary network f
 
 The Large layout displays each provider in this order: 5-hour usage, 5-hour reset (or `Not started yet`), weekly usage, weekly reset with projected percentage, and the safe/unsafe status.
 
+## Native macOS widget
+
+The optional [WidgetKit app](macos/AIUsageMac/README.md) displays the same data on a Mac desktop without iPhone Mirroring. It connects to this repository's local API, keeps the API key in a shared Keychain group, and caches the latest quota snapshot in an App Group. Building it requires full Xcode, XcodeGen, and your own Apple signing identifiers; no signed app or personal signing settings are included.
+
 ## Optional Telegram report
 
 The repository includes a generic Telegram Bot API reporter with the same information and ordering as the Large widget. Credentials are read only from the ignored `.env` file:

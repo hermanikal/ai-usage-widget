@@ -6,3 +6,6 @@ data/
 logs/
 .DS_Store
 widget/*local*.js
+macos/AIUsageMac/AIUsageMac.xcodeproj/
+macos/AIUsageMac/*.xcworkspace/
+macos/AIUsageMac/build/
