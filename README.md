@@ -85,6 +85,10 @@ For weekly projection, set `CLAUDE_USAGE_COMMAND` to your own local collector co
 
 Set `CHATGPT_USAGE_COMMAND` to an absolute command that prints one JSON object matching [`examples/chatgpt-snapshot.example.json`](examples/chatgpt-snapshot.example.json). Each usage window needs `used_percent`, `reset_at`, and `window_hours` for projection.
 
+For ChatGPT weekly projections, usage observed during the first 24 hours is
+treated as one full day's usage (for example, 2% projects to 14% over seven
+days). After that, the calculation uses the actual elapsed time.
+
 [`examples/chatgpt-usage-adapter.example.py`](examples/chatgpt-usage-adapter.example.py) is a starting-point template for that command — it defines the exact contract and ships a `--demo` mode that prints static example data, so you can wire up and test the whole pipeline before writing any real collection logic. Copy it outside `examples/` and fill in `fetch_snapshot()` with your own authorized ChatGPT usage source:
 
 ```bash

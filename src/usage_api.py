@@ -111,8 +111,10 @@ def projection(window: dict[str, Any], now: datetime) -> dict[str, Any] | None:
     started = reset_at - timedelta(hours=duration)
     elapsed = max((now - started).total_seconds() / 3600, 0.01)
     remaining = max((reset_at - now).total_seconds() / 3600, 0)
-    pace = float(used) / elapsed
-    projected = float(used) + pace * remaining
+    is_weekly = window.get("label", "").strip().lower() == "weekly" or duration == 168
+    pace_hours = max(elapsed, 24) if is_weekly else elapsed
+    pace = float(used) / pace_hours
+    projected = float(used) * duration / pace_hours if is_weekly else float(used) + pace * remaining
     safe = projected <= 100
     limit_at = now + timedelta(hours=(100 - float(used)) / pace) if pace > 0 and not safe else None
     return {

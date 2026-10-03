@@ -19,6 +19,12 @@ pace = used_percent / elapsed_window_hours
 projected_at_reset = used_percent + pace × remaining_hours
 ```
 
+For the ChatGPT weekly window, the first day's observed usage is treated as
+one full day's usage: `pace = used_percent / max(elapsed_hours, 24)` and
+`projected_at_reset = pace × window_hours`. After day one, the actual elapsed
+time is used. For example, 2% used during the first day of a seven-day window
+projects to 14%. This is an estimate, not a guaranteed quota outcome.
+
 `safe_until_reset` is true if the projection is at most 100%. The estimate assumes a constant pace; it should be treated as guidance only.
 
 Endpoints:
