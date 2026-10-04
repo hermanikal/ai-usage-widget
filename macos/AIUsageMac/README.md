@@ -2,7 +2,7 @@
 
 This optional macOS 14+ app and WidgetKit extension display Claude Pro and ChatGPT Plus usage from this repository's local API. The large widget shows 5-hour usage/reset, weekly usage/reset/projection, and safe/unsafe status. Clicking it opens the Mac app rather than iPhone Mirroring.
 
-The widget fetches `/api/claude-usage` and `/api/chatgpt-usage` roughly every 15 minutes, subject to WidgetKit scheduling. When the API is unavailable, it displays the last successful snapshot. Claude reset and projection fields require a configured collector; the baseline Claude Desktop cache supplies percentages only.
+The widget fetches `/api/claude-usage` and `/api/chatgpt-usage` roughly every 15 minutes, subject to WidgetKit scheduling. Click the circular-arrow button in the header to fetch immediately without opening the app. When the API is unavailable, it displays the last successful snapshot. Claude reset and projection fields require a configured collector; the baseline Claude Desktop cache supplies percentages only.
 
 ## Build
 

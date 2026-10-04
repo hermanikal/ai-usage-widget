@@ -1,5 +1,18 @@
+import AppIntents
 import SwiftUI
 import WidgetKit
+
+struct RefreshUsageIntent: AppIntent {
+    static var title: LocalizedStringResource = "Refresh AI Usage"
+    static var description = IntentDescription("Ambil data terbaru Claude Pro dan ChatGPT Plus.")
+
+    func perform() async throws -> some IntentResult {
+        // WidgetKit reloads this widget's timeline when the intent returns.
+        // Fetch first so the new snapshot is ready in the shared App Group.
+        _ = try? await UsageAPI.fetch()
+        return .result()
+    }
+}
 
 struct UsageEntry: TimelineEntry {
     let date: Date
@@ -103,7 +116,15 @@ struct UsageWidgetView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("AI Usage").font(.title3.bold())
+            HStack {
+                Text("AI Usage").font(.title3.bold())
+                Spacer()
+                Button(intent: RefreshUsageIntent()) {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Refresh AI Usage")
+            }
             if let snapshot = entry.snapshot {
                 let claude = snapshot.claude
                 ProviderSection(
