@@ -2,7 +2,7 @@
 
 ## 1. Data collection
 
-Claude has two modes. Baseline mode reads Claude Desktop's locally cached official percentage. Advanced mode calls the command in `CLAUDE_USAGE_COMMAND`; the command returns weekly and session percentages, reset timestamps, and window lengths.
+Claude has two modes. Baseline mode reads Claude Desktop's locally cached official percentage. Advanced mode calls the command in `CLAUDE_USAGE_COMMAND`; the command returns weekly and session percentages, reset timestamps, and window lengths. The bundled `src/claude_live_collector.py` implements advanced mode on macOS from the local Claude Code login (Keychain, read-only) and refreshes an expired token via the local `claude -p /usage` command, which spends no quota.
 
 ChatGPT is always adapter-based. `CHATGPT_USAGE_COMMAND` runs only on the owner’s server and must output a JSON object with `plan`, `updated_at`, and `windows`. A window is valid for projection when it contains `label`, `used_percent` (0–100), `reset_at` (ISO-8601 with timezone), and `window_hours`.
 

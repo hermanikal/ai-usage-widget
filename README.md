@@ -85,6 +85,22 @@ Without configuration, `/api/claude-usage` reads the current percentage values f
 
 For weekly projection, set `CLAUDE_USAGE_COMMAND` to your own local collector command. It must print JSON matching [`examples/claude-snapshot.example.json`](examples/claude-snapshot.example.json). The server calculates the weekly pace and projected percentage at reset.
 
+### Claude live collector (recommended on macOS)
+
+[`src/claude_live_collector.py`](src/claude_live_collector.py) is a ready-made `CLAUDE_USAGE_COMMAND` for Macs where Claude Code is installed and logged in with a claude.ai subscription. It returns live session/weekly percentages **with reset timestamps**, so projection works — unlike the Desktop cache, which can lag by hours.
+
+```bash
+CLAUDE_USAGE_COMMAND=/absolute/path/to/.venv/bin/python /absolute/path/to/src/claude_live_collector.py
+```
+
+How it works:
+
+- Reads Claude Code's existing OAuth access token from the macOS Keychain (`Claude Code-credentials`). The token is never printed, logged, or written anywhere.
+- Calls the same usage endpoint Claude Code uses for `/usage`. It is undocumented and may change; on any failure the collector exits non-zero and the API reports 503 instead of serving old numbers.
+- When the access token has expired, it runs `claude -p /usage` once so Claude Code refreshes its own token. That slash command is local — no model call, no quota spent — and Claude Code keeps ownership of refresh-token rotation. A file lock prevents parallel refreshes when several widgets poll at once.
+
+Set `CLAUDE_BIN` if the `claude` binary is not on the API process's `PATH` (common under `launchd`).
+
 ### ChatGPT adapter
 
 Set `CHATGPT_USAGE_COMMAND` to an absolute command that prints one JSON object matching [`examples/chatgpt-snapshot.example.json`](examples/chatgpt-snapshot.example.json). Each usage window needs `used_percent`, `reset_at`, and `window_hours` for projection.
